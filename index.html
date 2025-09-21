@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>3D Портфоліо | Blender Artist</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    :root {
+      --bg: #f4eaff;
+      --text: #222222;
+      --accent: #b27aff;
+      --accent-light: #ecdfff;
+      --muted: #555555;
+    }
+
+    body.dark {
+      --bg: #1a1720;
+      --text: #e6e6f0;
+      --accent: #c8a6ff;
+      --accent-light: #2a2333;
+      --muted: #a3a3b3;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      transition: background 0.4s ease, color 0.4s ease;
+    }
+
+    .theme-toggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 30px;
+      font-weight: 600;
+      cursor: pointer;
+      z-index: 1000;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      transition: background 0.3s;
+    }
+    .theme-toggle:hover { background: #9a5dff; }
+
+    /* Hero */
+    .hero {
+      text-align: center;
+      padding: 100px 20px 80px;
+      background: linear-gradient(180deg, var(--accent-light), transparent);
+    }
+    .hero h1 {
+      font-size: 3.2rem;
+      font-weight: 900;
+      color: var(--text);
+      margin-bottom: 20px;
+    }
+    .hero p {
+      font-size: 1.4rem;
+      color: var(--muted);
+    }
+
+    /* Filter buttons */
+    .filter-buttons {
+      text-align: center;
+      margin: 40px 0 20px;
+    }
+    .filter-buttons button {
+      background-color: var(--accent-light);
+      border: none;
+      color: var(--accent);
+      padding: 10px 20px;
+      margin: 5px;
+      border-radius: 30px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s;
+    }
+    .filter-buttons button:hover,
+    .filter-buttons button.active {
+      background-color: var(--accent);
+      color: white;
+      transform: scale(1.05);
+    }
+
+    /* Gallery */
+    .gallery {
+      column-count: 3;
+      column-gap: 20px;
+      padding: 0 5% 60px;
+    }
+    .gallery-item {
+      break-inside: avoid;
+      margin-bottom: 20px;
+      position: relative;
+      overflow: hidden;
+      border-radius: 12px;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+      cursor: pointer;
+    }
+    .gallery-item.hidden { opacity: 0; transform: translateY(30px); pointer-events: none; }
+    .gallery-item img {
+      width: 100%;
+      display: block;
+      border-radius: 12px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .gallery-item:hover img {
+      transform: scale(1.03);
+      box-shadow: 0 10px 25px rgba(178, 122, 255, 0.2);
+    }
+
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 100;
+      padding-top: 60px;
+      left: 0; top: 0;
+      width: 100%; height: 100%;
+      background-color: rgba(26, 26, 26, 0.85);
+    }
+    .modal-content {
+      display: block;
+      margin: auto;
+      max-width: 90%;
+      max-height: 80vh;
+      border-radius: 8px;
+    }
+    .close {
+      position: absolute;
+      top: 20px; right: 35px;
+      color: white; font-size: 2rem;
+      cursor: pointer;
+    }
+    .close:hover { color: #ccc; }
+
+    /* About */
+    .about {
+      padding: 60px 20px;
+      text-align: center;
+    }
+    .about h2 { font-size: 2rem; margin-bottom: 20px; }
+    .about p {
+      max-width: 700px;
+      margin: 0 auto;
+      font-size: 1.1rem;
+      color: var(--muted);
+    }
+
+    /* Socials */
+    .socials {
+      text-align: center;
+      padding: 20px 0 30px;
+      background-color: var(--bg);
+    }
+    .socials a {
+      font-size: 2rem;
+      margin: 0 12px;
+      color: var(--accent);
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+    .socials a:hover { color: #9a5dff; }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      font-size: 0.9rem;
+      color: #999;
+      background-color: #ececec;
+    }
+
+    @media (max-width: 900px) { .gallery { column-count: 2; } }
+
+    /* Адаптація під смартфон */
+    @media (max-width: 600px) {
+      .theme-toggle {
+        top: 10px;
+        right: 10px;
+        padding: 6px 12px;
+        font-size: 0.9rem;
+      }
+
+      .hero {
+        padding: 60px 15px 40px;
+      }
+      .hero h1 {
+        font-size: 1.8rem;
+        line-height: 1.2;
+      }
+      .hero p {
+        font-size: 1rem;
+      }
+
+      .filter-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        padding: 0 10px;
+      }
+      .filter-buttons button {
+        flex: 1 1 45%;
+        margin: 5px;
+        font-size: 0.9rem;
+        padding: 10px;
+      }
+
+      .gallery {
+        column-count: 1;
+        column-gap: 0;
+        padding: 0 15px 40px;
+      }
+      .gallery-item {
+        margin-bottom: 15px;
+      }
+
+      .about {
+        padding: 40px 15px;
+      }
+      .about h2 {
+        font-size: 1.5rem;
+      }
+      .about p {
+        font-size: 1rem;
+      }
+
+      .socials a {
+        font-size: 1.6rem;
+        margin: 0 8px;
+      }
+
+      footer {
+        font-size: 0.8rem;
+        padding: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <button class="theme-toggle">🌙 Тема</button>
+
+  <!-- Hero -->
+  <section class="hero">
+    <h1>Привіт, я 3D-художник</h1>
+    <p>Blender — мій простір для творчості</p>
+  </section>
+
+  <!-- Filter -->
+  <div class="filter-buttons">
+    <button class="active" data-filter="all">Усі</button>
+    <button data-filter="characters">Персонажі</button>
+    <button data-filter="interiors">Інтер’єри</button>
+    <button data-filter="figures">Фігурки</button>
+  </div>
+
+  <!-- Gallery -->
+  <section class="gallery">
+    <div class="gallery-item" data-category="characters">
+      <img src="blender figure.png" alt="Character 1">
+    </div>
+    <div class="gallery-item" data-category="interiors">
+      <img src="кімнатааа 4.0.png" alt="Interior 1">
+    </div>
+    <div class="gallery-item" data-category="figures">
+      <img src="DOM.png" alt="Figure 1">
+    </div>
+    <div class="gallery-item" data-category="characters">
+      <img src="blender figure.png" alt="Character 2">
+    </div>
+    <div class="gallery-item" data-category="interiors">
+      <img src="кімнатааа 4.0.png" alt="Interior 2">
+    </div>
+    <div class="gallery-item" data-category="figures">
+      <img src="DOM.png" alt="Figure 2">
+    </div>
+  </section>
+
+  <!-- About -->
+  <section class="about">
+    <h2>Про мене</h2>
+    <p>
+      Я починаю свій шлях у 3D-графіці. Blender — мій головний інструмент. Тут зібрані мої перші, але вже улюблені роботи. Це портфоліо буде рости разом з моїми навичками. Дякую, що завітали!
+    </p>
+  </section>
+
+  <!-- Socials -->
+  <section class="socials">
+    <a href="https://www.instagram.com" target="_blank" aria-label="Instagram">
+      <i class="fab fa-instagram"></i>
+    </a>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    &copy; 2025 | Моє 3D портфоліо | Blender Artist
+  </footer>
+  <!-- Modal -->
+  <div id="lightboxModal" class="modal">
+    <span class="close">&times;</span>
+    <img class="modal-content" id="modalImage" alt="Перегляд зображення">
+  </div>
+
+  <script>
+    // Filters
+    const buttons = document.querySelectorAll('.filter-buttons button');
+    const items = document.querySelectorAll('.gallery-item');
+    buttons.forEach(button => {
+      button.addEventListener('click', () => {
+        buttons.forEach(b => b.classList.remove('active'));
+        button.classList.add('active');
+        const filter = button.getAttribute('data-filter');
+        items.forEach(item => {
+          const category = item.getAttribute('data-category');
+          item.classList.toggle('hidden', !(filter === 'all' || category === filter));
+        });
+      });
+    });
+
+
+    const modal = document.getElementById("lightboxModal");
+    const modalImg = document.getElementById("modalImage");
+    const closeBtn = document.querySelector(".modal .close");
+    document.querySelectorAll(".gallery-item img").forEach(img => {
+      img.addEventListener("click", () => {
+        modal.style.display = "block";
+        modalImg.src = img.src;
+        modalImg.alt = img.alt;
+      });
+    });
+    closeBtn.onclick = () => modal.style.display = "none";
+    window.onclick = e => { if (e.target === modal) modal.style.display = "none"; };
+
+    // Toggle theme
+    const toggleBtn = document.querySelector(".theme-toggle");
+    toggleBtn.addEventListener("click", () => {
+      document.body.classList.toggle("dark");
+    });
+  </script>
+</body>
+</html>
